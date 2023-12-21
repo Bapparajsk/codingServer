@@ -14,5 +14,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use('/', indexRouter);
-
+const f = () => {
+  console.log('f')
+}
 module.exports = app;
