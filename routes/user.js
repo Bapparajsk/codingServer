@@ -1,11 +1,18 @@
 const router = require('express').Router();
-const userModel = require('../models/userDetails');
+const schema = require('../models/userDetails');
+const database = require('../db/usersDB');
 const bcrypt = require('bcryptjs');
 const createAuthToken  = require('../auth/authToken');
+
+const setDatabase = async () => {
+    return database.getCurrentConnection().model('user', schema);
+}
 
 // path is user register --> /user/register
 router.post('/register', async (req, res) => {
     try {
+        const Model = await setDatabase();
+
         const { fullName, email, password } = req.body;
         if (!fullName || !email || !password) {    // if all variables are valid
             return res.status(400).json({
@@ -17,7 +24,7 @@ router.post('/register', async (req, res) => {
             });
         }
 
-        const newUser = new userModel({    // create a new user
+        const newUser = new Model({    // create a new user
             fullName: fullName,
             email: email,
             password: password
@@ -25,7 +32,6 @@ router.post('/register', async (req, res) => {
 
         const user = await newUser.save();
         const token = await createAuthToken(user);
-
         return  res.status(201).json({    // send successful response
             status: 201,
             message: 'new user create Successful...',
@@ -47,8 +53,13 @@ router.post('/register', async (req, res) => {
 // path is user login --> /user/login
 router.post('/login', async (req, res) => {
     try {
+        const startTime = Date.now();
+        const Model = await setDatabase();
         const { email, password } = req.body;
-        const isExists = await userModel.findOne({email});
+
+        const isExists = await Model.findOne({email});
+        const endTime = Date.now();
+        console.log(`Database query time: ${endTime - startTime} ms`);
 
         if (!isExists ) {
             return res.status(500).json({    // send error response

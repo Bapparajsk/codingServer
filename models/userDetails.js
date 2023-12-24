@@ -24,5 +24,4 @@ schema.pre('save', async function(next) {
     next();
 });
 
-const userModel = model('userDetail', schema);
-module.exports = userModel;
+module.exports = schema;
