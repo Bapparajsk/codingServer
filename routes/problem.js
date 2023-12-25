@@ -1,8 +1,8 @@
-const {connection} = require("mongoose");
+const router = require('express').Router();
 const database = require("../db/problemsDB");
 const schema = require("../models/problemDetails");
-const router = require('express').Router();
 const multer = require('multer');
+const auth = require('../middleware/authentication');
 
 let Model;
 const storage = multer.memoryStorage();
@@ -25,7 +25,7 @@ const setDatabase = async (req, res, next) => {
 }
 
 // upload a new problem path is --> /problem/:language
-router.post('/upload/:language',setDatabase, upload.single('image'),  async (req, res) => {
+router.post('/upload/:language',setDatabase, upload.single('image'), auth , async (req, res) => {
     try {
         const { problemName, problemOptions, problemAnswer } = JSON.parse(req.body.problemDetails);
 
@@ -57,5 +57,6 @@ router.post('/upload/:language',setDatabase, upload.single('image'),  async (req
         });
     }
 });
+
 
 module.exports = router;

@@ -16,7 +16,8 @@ app.use(cors());
 
 // app router path
 app.use('/', require('./routes/index'));
-app.use('/user', require('./routes/user'));
-app.use('/problem', require('./routes/problem'));
-
+app.use('/api/user', require('./routes/user'));
+app.use('/api/problem', require('./routes/problem'));
+app.use('/api/problem/image', require('./routes/imageRetrieval'));
+app.use('/api/all-problems', require('./routes/getAllProblems'));
 module.exports = app;

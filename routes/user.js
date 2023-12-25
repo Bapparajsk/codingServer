@@ -2,17 +2,28 @@ const router = require('express').Router();
 const schema = require('../models/userDetails');
 const database = require('../db/usersDB');
 const bcrypt = require('bcryptjs');
-const createAuthToken  = require('../auth/authToken');
+const createAuthToken  = require('../createToken/authToken');
+let Model;
 
-const setDatabase = async () => {
-    return database.getCurrentConnection().model('user', schema);
+const setDatabase = async (req, res, next) => {
+    try{
+        Model = database.getCurrentConnection().model('user', schema);
+        next();
+    } catch (error) {
+        console.log('database error : ', error);
+        res.status(500).json({
+            status: 500,
+            error: {
+                message: 'Internal Server Error',
+                details: error.message || 'Something went wrong on the server.',
+            },
+        });
+    }
 }
 
 // path is user register --> /user/register
-router.post('/register', async (req, res) => {
+router.post('/register',setDatabase,  async (req, res) => {
     try {
-        const Model = await setDatabase();
-
         const { fullName, email, password } = req.body;
         if (!fullName || !email || !password) {    // if all variables are valid
             return res.status(400).json({
@@ -51,15 +62,10 @@ router.post('/register', async (req, res) => {
 });
 
 // path is user login --> /user/login
-router.post('/login', async (req, res) => {
+router.post('/login', setDatabase, async (req, res) => {
     try {
-        const startTime = Date.now();
-        const Model = await setDatabase();
         const { email, password } = req.body;
-
         const isExists = await Model.findOne({email});
-        const endTime = Date.now();
-        console.log(`Database query time: ${endTime - startTime} ms`);
 
         if (!isExists ) {
             return res.status(500).json({    // send error response
@@ -73,8 +79,7 @@ router.post('/login', async (req, res) => {
             return  res.status(200).json({    // send successful response
                 status: 200,
                 message: 'login Successful...',
-                token,
-                isExists
+                token
             });
         } else {
             return res.status(500).json({    // send error response
