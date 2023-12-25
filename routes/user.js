@@ -1,10 +1,28 @@
 const router = require('express').Router();
-const userModel = require('../models/userDetails');
+const schema = require('../models/userDetails');
+const database = require('../db/usersDB');
 const bcrypt = require('bcryptjs');
-const createAuthToken  = require('../auth/authToken');
+const createAuthToken  = require('../createToken/authToken');
+let Model;
+
+const setDatabase = async (req, res, next) => {
+    try{
+        Model = database.getCurrentConnection().model('user', schema);
+        next();
+    } catch (error) {
+        console.log('database error : ', error);
+        res.status(500).json({
+            status: 500,
+            error: {
+                message: 'Internal Server Error',
+                details: error.message || 'Something went wrong on the server.',
+            },
+        });
+    }
+}
 
 // path is user register --> /user/register
-router.post('/register', async (req, res) => {
+router.post('/register',setDatabase,  async (req, res) => {
     try {
         const { fullName, email, password } = req.body;
         if (!fullName || !email || !password) {    // if all variables are valid
@@ -17,7 +35,7 @@ router.post('/register', async (req, res) => {
             });
         }
 
-        const newUser = new userModel({    // create a new user
+        const newUser = new Model({    // create a new user
             fullName: fullName,
             email: email,
             password: password
@@ -25,7 +43,6 @@ router.post('/register', async (req, res) => {
 
         const user = await newUser.save();
         const token = await createAuthToken(user);
-
         return  res.status(201).json({    // send successful response
             status: 201,
             message: 'new user create Successful...',
@@ -45,10 +62,10 @@ router.post('/register', async (req, res) => {
 });
 
 // path is user login --> /user/login
-router.post('/login', async (req, res) => {
+router.post('/login', setDatabase, async (req, res) => {
     try {
         const { email, password } = req.body;
-        const isExists = await userModel.findOne({email});
+        const isExists = await Model.findOne({email});
 
         if (!isExists ) {
             return res.status(500).json({    // send error response
@@ -62,8 +79,7 @@ router.post('/login', async (req, res) => {
             return  res.status(200).json({    // send successful response
                 status: 200,
                 message: 'login Successful...',
-                token,
-                isExists
+                token
             });
         } else {
             return res.status(500).json({    // send error response

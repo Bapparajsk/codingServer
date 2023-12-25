@@ -31,7 +31,7 @@ const schema = new Schema({
         type: Number,
         required: true
     },
-    data:{
+    imageData:{
         type: Buffer,
         required: true,
     },
@@ -41,5 +41,4 @@ const schema = new Schema({
     }
 });
 
-const problemModel = model('problemDetail', schema);
-module.exports = problemModel;
+module.exports = schema;
