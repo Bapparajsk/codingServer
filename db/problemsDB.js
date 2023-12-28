@@ -1,4 +1,4 @@
-const config = require('./config');
+const config = require('./db.config');
 
 // connect to database
 config.connectToDatabase(process.env.YOUR_MONGODB_URI_PROBLEM);

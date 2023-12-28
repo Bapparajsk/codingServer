@@ -17,7 +17,10 @@ app.use(cors());
 // app router path
 app.use('/', require('./routes/index'));
 app.use('/api/user', require('./routes/user'));
+app.use('/api/exist-email', require('./routes/findEmain'));
 app.use('/api/problem', require('./routes/problem'));
 app.use('/api/problem/image', require('./routes/imageRetrieval'));
 app.use('/api/all-problems', require('./routes/getAllProblems'));
+app.use('/api/problem', require('./routes/getProblem'));
+
 module.exports = app;

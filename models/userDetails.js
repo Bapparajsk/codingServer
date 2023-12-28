@@ -1,6 +1,5 @@
 const { Schema, model } = require("mongoose");
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 
 const schema = new Schema({
     fullName: {
@@ -9,7 +8,8 @@ const schema = new Schema({
     },
     email: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     password: {
         type: String,
