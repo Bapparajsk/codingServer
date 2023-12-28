@@ -29,7 +29,7 @@ router.get('/', setDatabase, auth, async (req, res) => {
             status: 200,
             statusText: "ok",
             data: data
-        })
+        });
     } catch (e) {
         console.log(e);
         res.status(500).send(e.message || 'Internal Server Error');
